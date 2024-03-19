@@ -4,8 +4,11 @@
                    xmlns:neo4j="http://www.liquibase.org/xml/ns/dbchangelog-ext"
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
+    <!-- exercise 1 -->
     <changeSet id="remove-constraints-" author="liquibase-fan"><!-- this is provided -->
-        <neo4j:cypher>CALL apoc.schema.assert({Movie:['tagline'], Movie:['released'], Person:['name'], Movie:['imdbRating'], User:['name'], Movie:['title'], Movie:['year']}, {}, true)</neo4j:cypher>
+        <neo4j:cypher>CALL apoc.schema.assert({Movie:['tagline'], Movie:['released'], Person:['name'],
+            Movie:['imdbRating'], User:['name'], Movie:['title'], Movie:['year']}, {}, true)
+        </neo4j:cypher>
     </changeSet>
     <changeSet id="add-IMDB-id-constraint-for-movie" author="liquibase-fan"><!-- this is NOT provided -->
         <neo4j:cypher>CREATE CONSTRAINT cst_movie_IMDB_id FOR (m:Movie) REQUIRE (m.imdbId) IS NODE KEY</neo4j:cypher>
@@ -17,18 +20,17 @@
         <neo4j:cypher>CREATE CONSTRAINT cst_movie_plot FOR (m:Movie) REQUIRE (m.plot) IS NOT NULL</neo4j:cypher>
     </changeSet>
 
+    <!-- exercise 2 -->
     <changeSet id="seed-countries-reference" author="liquibase-fan"><!-- this is NOT provided -->
-        <loadData
-                file="countries.csv"
-                separator=";"
-                tableName="Country">
+        <loadData file="countries.csv" tableName="Country">
             <column name="country" header="name" type="string"/>
         </loadData>
     </changeSet>
 
     <!-- exercise 3 -->
     <changeSet id="make-country-names-typed" author="liquibase-fan"><!-- this is provided -->
-        <neo4j:cypher>CREATE CONSTRAINT country_name_string FOR (country:Country) REQUIRE country.name IS ::STRING</neo4j:cypher>
+        <neo4j:cypher>CREATE CONSTRAINT country_name_string FOR (country:Country) REQUIRE country.name IS ::STRING
+        </neo4j:cypher>
     </changeSet>
 
     <changeSet id="extract-countries-from-movies" author="liquibase-fan">
