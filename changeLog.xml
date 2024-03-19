@@ -7,7 +7,7 @@
     <changeSet id="remove-constraints-" author="liquibase-fan"><!-- this is provided -->
         <neo4j:cypher>CALL apoc.schema.assert({Movie:['tagline'], Movie:['released'], Person:['name'], Movie:['imdbRating'], User:['name'], Movie:['title'], Movie:['year']}, {}, true)</neo4j:cypher>
     </changeSet>
-    <changeSet id="add-title-constraint-for-movie" author="liquibase-fan"><!-- this is NOT provided -->
+    <changeSet id="add-IMDB-id-constraint-for-movie" author="liquibase-fan"><!-- this is NOT provided -->
         <neo4j:cypher>CREATE CONSTRAINT cst_movie_IMDB_id FOR (m:Movie) REQUIRE (m.imdbId) IS NODE KEY</neo4j:cypher>
     </changeSet>
     <changeSet id="fix-up-movie-plot" author="liquibase-fan"><!-- this is NOT provided -->
