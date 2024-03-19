@@ -37,7 +37,7 @@
     <changeSet id="extract-countries-from-movies" author="liquibase-fan">
         <!-- this is NOT provided -->
         <neo4j:extractProperty property="countries" fromNodes="(m:Movie) WHERE m.countries IS NOT NULL" nodesNamed="m">
-            <neo4j:toNodes withLabel="Country" withProperty="names" merge=true>
+            <neo4j:toNodes withLabel="Country" withProperty="names" merge="true">
                 <neo4j:linkedFromSource withType="IN_COUNTRY" withDirection="OUTGOING"/>
             </neo4j:toNodes>
         </neo4j:extractProperty>
