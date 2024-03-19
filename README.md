@@ -41,7 +41,7 @@ nodes that were extracted in step 1.
 
 ### Exercise 4
 
-Time to rollback! (TODO: tagging first??)
+Time to rollback!
 
 #### Step 1
 
