@@ -6,6 +6,12 @@
 
     <!-- exercise 1 -->
     <changeSet id="remove-constraints-" author="liquibase-fan"><!-- this is provided -->
+        <!-- bonus exercise 5 -->
+        <preConditions onFail="HALT">
+            <neo4j:cypherCheck expectedResult="1">
+                SHOW PROCEDURES YIELD name WHERE name = "apoc.schema.assert" RETURN count(name)
+            </neo4j:cypherCheck>
+        </preConditions>
         <neo4j:cypher>CALL apoc.schema.assert({Movie:['tagline'], Movie:['released'], Person:['name'],
             Movie:['imdbRating'], User:['name'], Movie:['title'], Movie:['year']}, {}, true)
         </neo4j:cypher>
