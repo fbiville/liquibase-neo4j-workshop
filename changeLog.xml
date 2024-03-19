@@ -61,7 +61,7 @@
             UNWIND old.names AS rawName
             WITH trim(rawName) AS name <!-- <- acceptable information loss here -->
             WITH DISTINCT name
-            CREATE (:Country {name: name})
+            MERGE (:Country {name: name})
         </neo4j:cypher>
         <neo4j:cypher><!-- this is provided -->
             MATCH (new:Country WHERE new.name IS NOT NULL)
