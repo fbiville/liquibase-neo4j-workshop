@@ -2,6 +2,17 @@
 
 ## Exercises
 
+Most exercises require you to run the following commands:
+
+```shell
+# what changes have been run so far?
+liquibase history --url jdbc:neo4j:<NEO4J_URL> --username <NEO4J_USER> --password <NEO4J_PASSWORD>
+# perform a dry-run to catch errors early
+liquibase update-sql --changelog-file changeLog.xml --url jdbc:neo4j:<NEO4J_URL> --username <NEO4J_USER> --password <NEO4J_PASSWORD>
+# perform the actual run
+liquibase update --changelog-file changeLog.xml --url jdbc:neo4j:<NEO4J_URL> --username <NEO4J_USER> --password <NEO4J_PASSWORD>
+```
+
 ### Exercise 1
 
 #### Step 1
@@ -42,6 +53,11 @@ nodes that were extracted in step 1.
 ### Exercise 4
 
 Time to rollback!
+Once you complete steps 1 & 2, you can run the following command twice (so you can the effect of each consecutive rollbacks):
+
+```shell
+liquibase rollback-count 1 --changelog-file changeLog.xml --url jdbc:neo4j:<NEO4J_URL> --username <NEO4J_USER> --password <NEO4J_PASSWORD>
+```
 
 #### Step 1
 
@@ -59,3 +75,8 @@ It's probably easier to split the work into two Cypher queries:
 1. recreate `Country` nodes with `names` collected from all the country names involved in each movie, link them to their
    movie as well
 2. remove all `Country` nodes that include the `name` property, as well as their relationship
+
+### Bonus: exercise 5
+
+Use a custom `cypherCheck` precondition to make sure the `apoc.schema.assert` is actually installed.
+Halt the execution if the precondition fails to verify.
