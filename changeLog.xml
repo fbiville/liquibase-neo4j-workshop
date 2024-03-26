@@ -5,7 +5,7 @@
                    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
     <!-- exercise 1 -->
-    <changeSet id="remove-constraints-" author="liquibase-fan"><!-- this is provided -->
+    <changeSet id="remove-constraints" author="liquibase-fan"><!-- this is provided -->
         <!-- bonus exercise 5 -->
         <preConditions onFail="HALT">
             <neo4j:cypherCheck expectedResult="1">
@@ -35,49 +35,50 @@
 
     <!-- exercise 3 -->
     <changeSet id="make-country-names-typed" author="liquibase-fan"><!-- this is provided -->
-        <neo4j:cypher>CREATE CONSTRAINT country_name_string FOR (country:Country) REQUIRE country.name IS ::STRING
+        <neo4j:cypher>CREATE CONSTRAINT country_name_string FOR (country:Country) REQUIRE country.country IS ::STRING
         </neo4j:cypher>
     </changeSet>
 
     <changeSet id="extract-countries-from-movies" author="liquibase-fan">
         <!-- this is NOT provided -->
         <neo4j:extractProperty property="countries" fromNodes="(m:Movie) WHERE m.countries IS NOT NULL" nodesNamed="m">
-            <neo4j:toNodes withLabel="Country" withProperty="names" merge="true">
+            <neo4j:toNodes withLabel="Country" withProperty="countries" merge="true">
                 <neo4j:linkedFromSource withType="IN_COUNTRY" withDirection="OUTGOING"/>
             </neo4j:toNodes>
         </neo4j:extractProperty>
-        <rollback> <!-- this is exercise 4 -->
+        <rollback><!-- this is exercise 4 -->
             <neo4j:cypher>
                 MATCH (country:Country)&lt;-[:IN_COUNTRY]-(movie:Movie)
-                SET movie.countries = country.names
+                SET movie.countries = country.countries
                 DETACH DELETE country
             </neo4j:cypher>
         </rollback>
     </changeSet>
 
-    <changeSet id="explode-and-deduplicate-country-codes" author="liquibase-fan">
+    <changeSet id="explode-and-normalize-country-names" author="liquibase-fan">
         <neo4j:cypher><!-- this is NOT provided -->
-            MATCH (old:Country WHERE old.names IS NOT NULL)
-            UNWIND old.names AS rawName
-            WITH trim(rawName) AS name <!-- <- acceptable information loss here -->
+            MATCH (old:Country WHERE old.countries IS NOT NULL)
+            UNWIND old.countries AS rawName
+            WITH trim(rawName) AS name
             WITH DISTINCT name
-            MERGE (:Country {name: name})
+            MERGE (:Country {country: name})
         </neo4j:cypher>
         <neo4j:cypher><!-- this is provided -->
-            MATCH (new:Country WHERE new.name IS NOT NULL)
-            MATCH (old:Country WHERE old.names IS NOT NULL AND new.name IN old.names)&lt;-[:IN_COUNTRY]-(movie:Movie)
+            MATCH (new:Country WHERE new.country IS NOT NULL)
+            MATCH (old:Country WHERE old.countries IS NOT NULL AND any(country IN old.countries WHERE trim(country) =
+            new.country))&lt;-[:IN_COUNTRY]-(movie:Movie)
             CREATE (new)&lt;-[:IN_COUNTRY]-(movie)
             DETACH DELETE old
         </neo4j:cypher>
         <rollback><!-- this is also exercise 4 -->
             <neo4j:cypher>
-                MATCH (movie:Movie)-[:IN_COUNTRY]-&gt;(country:Country)
-                WITH movie, collect(country.name) AS names
-                CREATE (:Country {names: names})&lt;-[:IN_COUNTRY]-(movie)
+                MATCH (movie:Movie)-[r:IN_COUNTRY]-&gt;(country:Country)
+                WITH movie, collect(country.country) AS countries
+                CREATE (:Country {countries: countries})&lt;-[:IN_COUNTRY]-(movie)
             </neo4j:cypher>
             <neo4j:cypher>
-                MATCH (country:Country WHERE country.name IS NOT NULL)
-                DETACH DELETE country
+                MATCH (country:Country WHERE country.countries IS NULL)&lt;-[r:IN_COUNTRY]-&gt;(:Movie)
+                DELETE r
             </neo4j:cypher>
         </rollback>
     </changeSet>
